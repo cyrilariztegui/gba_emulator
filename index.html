@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#111125" />
+  <title>RETROCORE</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ÉCRAN D'ACCUEIL                                        -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="screen-home" class="screen active">
+    <div class="top-bar">
+      <button class="icon-btn"><span class="material-symbols-outlined">menu</span></button>
+      <span class="top-bar-title">RETROCORE</span>
+      <button class="icon-btn"><span class="material-symbols-outlined">search</span></button>
+    </div>
+
+    <div class="home-content">
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="rom-input" accept=".gba,.gb,.gbc" hidden />
+        <div class="drop-icon">
+          <span class="material-symbols-outlined" style="font-size:36px;color:var(--primary-container)">play_circle</span>
+        </div>
+        <p class="drop-label">Charger une ROM</p>
+        <p class="drop-hint">.gba · .gb · .gbc</p>
+      </div>
+
+      <div id="recent-section" class="hidden">
+        <div class="section-header">
+          <p class="section-label">Récents</p>
+          <span class="count-pill" id="recent-count">0 JEUX</span>
+        </div>
+        <ul id="recent-items"></ul>
+      </div>
+    </div>
+
+    <nav class="home-nav">
+      <button class="nav-btn active">
+        <span class="material-symbols-outlined" style="font-size:22px;font-variation-settings:'FILL' 1">grid_view</span>
+        Bibliothèque
+      </button>
+      <button class="nav-btn" id="btn-saves-nav">
+        <span class="material-symbols-outlined" style="font-size:22px">save</span>
+        Sauvegardes
+      </button>
+      <button class="nav-btn" id="btn-cheats-nav">
+        <span class="material-symbols-outlined" style="font-size:22px">code</span>
+        Codes
+      </button>
+    </nav>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ÉCRAN JEU — EmulatorJS s'injecte dans #game           -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="screen-game" class="screen">
+    <div id="game-bar">
+      <button id="btn-back" class="icon-btn">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span id="game-title-bar">—</span>
+      <div class="game-bar-actions">
+        <button id="btn-save-state" class="icon-btn"><span class="material-symbols-outlined">save</span></button>
+        <button id="btn-load-state" class="icon-btn"><span class="material-symbols-outlined">folder_open</span></button>
+        <button id="btn-cheats"     class="icon-btn"><span class="material-symbols-outlined">code</span></button>
+        <button id="btn-fullscreen" class="icon-btn"><span class="material-symbols-outlined">fullscreen</span></button>
+      </div>
+    </div>
+
+    <div id="game-container">
+      <!-- EmulatorJS remplace ce div -->
+      <div id="game"></div>
+    </div>
+  </div>
+
+
+  <!-- MODAL — SAVES -->
+  <div id="modal-saves" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Sauvegardes</h2>
+        <button class="modal-close" data-modal="modal-saves">✕</button>
+      </div>
+      <div id="saves-grid" class="saves-grid"></div>
+      <p id="saves-empty" class="empty-msg hidden">AUCUNE SAUVEGARDE</p>
+    </div>
+  </div>
+
+  <!-- MODAL — CHEATS -->
+  <div id="modal-cheats" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Codes GameShark</h2>
+        <button class="modal-close" data-modal="modal-cheats">✕</button>
+      </div>
+      <div class="cheat-form">
+        <input id="cheat-desc" type="text" placeholder="Nom du code" maxlength="32" />
+        <input id="cheat-code" type="text" placeholder="XXXXXXXX YYYYYYYY" maxlength="17" />
+        <button id="btn-add-cheat">Ajouter le code</button>
+      </div>
+      <ul id="cheats-list-items"></ul>
+      <p id="cheats-empty" class="empty-msg hidden">AUCUN CODE ACTIF</p>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="saves.js"></script>
+  <script src="cheats.js"></script>
+  <script src="ui.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
