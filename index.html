@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#111125" />
+  <title>RETROCORE</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  ÉCRAN BIBLIOTHÈQUE                          -->
+  <!-- ════════════════════════════════════════════ -->
+  <section id="screen-home" class="screen active">
+
+    <header class="top-bar">
+      <span class="material-symbols-outlined top-bar-icon">stadia_controller</span>
+      <h1 class="top-bar-title">RETROCORE</h1>
+      <span class="version-pill">WEB</span>
+    </header>
+
+    <div class="home-scroll">
+
+      <!-- Zone de chargement -->
+      <div class="drop-zone tactile-pop" id="drop-zone" role="button" tabindex="0" aria-label="Charger une ROM">
+        <input type="file" id="rom-input" accept=".gba,.gb,.gbc" hidden />
+        <span class="material-symbols-outlined drop-icon">play_circle</span>
+        <p class="drop-label">Charger une ROM</p>
+        <p class="drop-hint">.GBA · .GB · .GBC</p>
+      </div>
+
+      <!-- Jeux récents -->
+      <div id="recent-section" class="hidden">
+        <div class="section-header">
+          <h2 class="section-title">Reprendre</h2>
+          <span class="count-pill" id="recent-count">0 JEUX</span>
+        </div>
+        <ul id="recent-items" class="recent-items"></ul>
+      </div>
+
+    </div>
+
+    <!-- Navigation basse -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" disabled>
+        <span class="material-symbols-outlined nav-icon" style="font-variation-settings:'FILL' 1">grid_view</span>
+        <span class="nav-label">Bibliothèque</span>
+      </button>
+      <button class="nav-item" id="nav-saves">
+        <span class="material-symbols-outlined nav-icon">save</span>
+        <span class="nav-label">Sauvegardes</span>
+      </button>
+      <button class="nav-item" id="nav-cheats">
+        <span class="material-symbols-outlined nav-icon">key</span>
+        <span class="nav-label">Codes</span>
+      </button>
+    </nav>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  ÉCRAN JEU                                   -->
+  <!-- ════════════════════════════════════════════ -->
+  <section id="screen-game" class="screen">
+
+    <header class="game-bar">
+      <button id="btn-back" class="icon-btn" aria-label="Retour">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <span id="game-title" class="game-title">—</span>
+      <div class="game-actions">
+        <button id="btn-save"  class="icon-btn" aria-label="Sauvegarder l'état">
+          <span class="material-symbols-outlined">save</span>
+        </button>
+        <button id="btn-load"  class="icon-btn" aria-label="Charger un état">
+          <span class="material-symbols-outlined">folder_open</span>
+        </button>
+        <button id="btn-codes" class="icon-btn" aria-label="Codes GameShark">
+          <span class="material-symbols-outlined">key</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- L'iframe EmulatorJS est injectée ici -->
+    <div id="game-frame-host"></div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  MODAL · SAUVEGARDES                         -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="modal-saves" class="modal hidden" aria-hidden="true">
+    <div class="modal-sheet">
+      <div class="modal-grip"></div>
+      <div class="modal-header">
+        <h2 class="modal-title">Sauvegardes</h2>
+        <button class="modal-close tactile-pop" data-close="modal-saves" aria-label="Fermer">
+          <span class="material-symbols-outlined" style="font-size:18px">close</span>
+        </button>
+      </div>
+      <p class="modal-sub" id="saves-game-name">—</p>
+      <div id="saves-grid" class="saves-grid"></div>
+      <p id="saves-empty" class="empty-state hidden">AUCUNE SAUVEGARDE</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!--  MODAL · CODES GAMESHARK                     -->
+  <!-- ════════════════════════════════════════════ -->
+  <div id="modal-cheats" class="modal hidden" aria-hidden="true">
+    <div class="modal-sheet">
+      <div class="modal-grip"></div>
+      <div class="modal-header">
+        <h2 class="modal-title">Codes GameShark</h2>
+        <button class="modal-close tactile-pop" data-close="modal-cheats" aria-label="Fermer">
+          <span class="material-symbols-outlined" style="font-size:18px">close</span>
+        </button>
+      </div>
+      <p class="modal-sub" id="cheats-game-name">—</p>
+
+      <div class="cheat-form">
+        <input id="cheat-name" class="field" type="text" placeholder="Nom du code" maxlength="32" autocomplete="off" />
+        <input id="cheat-code" class="field field-mono" type="text" placeholder="XXXXXXXX YYYYYYYY" maxlength="17" autocomplete="off" spellcheck="false" />
+        <button id="btn-add-cheat" class="primary-btn tactile-pop">Ajouter le code</button>
+      </div>
+
+      <ul id="cheat-list" class="cheat-list"></ul>
+      <p id="cheats-empty" class="empty-state hidden">AUCUN CODE</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <script src="saves.js"></script>
+  <script src="cheats.js"></script>
+  <script src="ui.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
