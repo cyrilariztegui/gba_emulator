@@ -28,17 +28,17 @@
 
     UI.toast('CHARGEMENT…');
 
-    // Lire la ROM en dataURL (compatible blob iframe, pas de cross-origin)
-    const dataURL = await new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload  = () => resolve(r.result);
-      r.onerror = () => reject(r.error);
-      r.readAsDataURL(file);
-    });
+    // URL blob légère : l'iframe blob hérite de notre origine,
+    // elle peut donc la lire. Évite un HTML de 40 Mo en base64,
+    // que le mode "écran d'accueil" iOS refuse silencieusement.
+    if (rom && rom.blobURL) URL.revokeObjectURL(rom.blobURL);
+    const blobURL = URL.createObjectURL(
+      new Blob([await file.arrayBuffer()], { type: 'application/octet-stream' })
+    );
 
     rom = {
       title: file.name.replace(/\.(gba|gb|gbc)$/i, ''),
-      dataURL,
+      blobURL,
       core: CORES[ext],
     };
 
@@ -70,9 +70,14 @@
 <body>
 <div id="game"></div>
 <script>
+  // Remontée d'erreurs vers l'app parente (diagnostic sans console)
+  window.onerror = function(msg) {
+    parent.postMessage({ rc: 'jserror', msg: String(msg) }, '*');
+  };
+
   EJS_player         = '#game';
   EJS_core           = ${JSON.stringify(rom.core)};
-  EJS_gameUrl        = ${JSON.stringify(rom.dataURL)};
+  EJS_gameUrl        = ${JSON.stringify(rom.blobURL)};
   EJS_gameName       = ${JSON.stringify(rom.title)};
   EJS_pathtodata     = 'https://cdn.emulatorjs.org/latest/data/';
   EJS_color          = '#8117ed';
@@ -164,6 +169,10 @@
 
     if (msg.rc === 'error') {
       UI.toast(msg.what === 'save' ? 'ERREUR DE SAUVEGARDE' : 'ERREUR DE CHARGEMENT');
+    }
+
+    if (msg.rc === 'jserror') {
+      UI.toast(`ERREUR : ${String(msg.msg).slice(0, 60)}`, 5000);
     }
   });
 
