@@ -188,7 +188,12 @@ h2 {
 #emu-host iframe {
   position: absolute;
   top: var(--player-top);
-  right: 0; bottom: 0; left: 0;
+  left: 0;
+  /* Dimensions EXPLICITES obligatoires : une iframe est un élément
+     remplacé, poser left/right/top/bottom ne l'étire pas — elle
+     resterait à sa taille intrinsèque de 300×150 px. */
+  width: 100%;
+  height: calc(100% - var(--player-top));
   border: none;
   background: #000;
 }

@@ -90,6 +90,13 @@ async function launchGame(romId) {
   emulator = new EmulatorFrame($('#emu-host'), rom, listCheats(rom.id));
   emulator.on('started', () => toast('Partie lancée'));
   emulator.on('error', e => toast(`Erreur : ${e.message}`));
+  // Diagnostic ponctuel : taille réelle de l'iframe au démarrage
+  let metricsShown = false;
+  emulator.on('metrics', m => {
+    if (metricsShown) return;
+    metricsShown = true;
+    toast(`Écran ${m.inner[0]}×${m.inner[1]}`);
+  });
   // L'iframe confirme le changement : le bouton reflète l'état réel
   emulator.on('fastforward', on => {
     fastForward = on;

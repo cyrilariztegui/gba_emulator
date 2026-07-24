@@ -35,14 +35,11 @@ function buildFrameHtml() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <style>
-  html, body { margin: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-  #game { width: 100%; height: 100%; }
-  /* EmulatorJS génère ses propres conteneurs et les dimensionne
-     à la volée : on les force à occuper toute la surface, sinon
-     le jeu reste calé en haut à gauche dans une petite boîte. */
-  #game > div,
-  .ejs_parent,
-  .ejs_game { width: 100% !important; height: 100% !important; }
+  html, body { margin: 0; padding: 0; background: #000; overflow: hidden; }
+  /* Dimensions posées en pixels par fitGame() : aucun pourcentage,
+     donc aucune ambiguïté de résolution de hauteur dans une iframe
+     à origine opaque. */
+  #game { position: absolute; top: 0; left: 0; }
 </style>
 </head>
 <body>
@@ -100,18 +97,47 @@ function buildFrameHtml() {
      en page soit stabilisée → jeu minuscule en haut à gauche.
      On force donc un recalcul après coup, puis à chaque
      rotation de l'appareil. */
-  function forceResize() {
+  /* ---------- Dimensionnement ----------
+     On pose la taille du conteneur en pixels à partir des
+     dimensions réelles de l'iframe, puis on la propage aux
+     conteneurs générés par EmulatorJS et on lui demande de
+     recalculer. Les mesures sont renvoyées au parent pour
+     diagnostic. */
+  function fitGame() {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    if (!w || !h) return;
+
+    var host = document.getElementById('game');
+    host.style.width = w + 'px';
+    host.style.height = h + 'px';
+
+    // EmulatorJS empile plusieurs div : toutes doivent suivre
+    var nodes = host.querySelectorAll('div');
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (n.className && /ejs_(parent|game|canvas_parent)/.test(n.className)) {
+        n.style.width = w + 'px';
+        n.style.height = h + 'px';
+      }
+    }
+
     try {
       var e = window.EJS_emulator;
       if (e && typeof e.handleResize === 'function') e.handleResize();
-      else window.dispatchEvent(new Event('resize'));
-    } catch (err) { /* silencieux : purement cosmétique */ }
+    } catch (err) { /* purement cosmétique */ }
+
+    var rect = host.getBoundingClientRect();
+    send({ type: 'metrics', inner: [w, h], host: [Math.round(rect.width), Math.round(rect.height)] });
   }
 
+  // Pas de dispatch d'événement 'resize' ici : cela se rappellerait
+  // en boucle depuis l'écouteur ci-dessous.
+  window.addEventListener('resize', function () { setTimeout(fitGame, 60); });
   window.addEventListener('orientationchange', function () {
-    // iOS met à jour les dimensions après la fin de l'animation
-    setTimeout(forceResize, 250);
-    setTimeout(forceResize, 700);
+    // iOS ne met à jour les dimensions qu'après l'animation
+    setTimeout(fitGame, 250);
+    setTimeout(fitGame, 700);
   });
 
   /* ---------- Menu natif EmulatorJS ----------
@@ -171,6 +197,10 @@ function buildFrameHtml() {
       var romUrl = URL.createObjectURL(blob);
       pendingCheats = msg.cheats || [];
 
+      // Le conteneur doit avoir sa taille définitive AVANT
+      // qu'EmulatorJS ne le mesure au chargement de loader.js
+      fitGame();
+
       window.EJS_player = '#game';
       window.EJS_core = 'gba'; // core mGBA WebAssembly
       window.EJS_gameName = msg.name || 'game';
@@ -187,8 +217,8 @@ function buildFrameHtml() {
         // Les codes actifs sont appliqués dès le lancement
         applyCheats(pendingCheats);
         // Deux passes : la mise en page se stabilise en différé
-        setTimeout(forceResize, 100);
-        setTimeout(forceResize, 600);
+        setTimeout(fitGame, 100);
+        setTimeout(fitGame, 600);
       };
 
       // Étape 5 : injection de loader.js depuis le contexte iframe
@@ -250,7 +280,7 @@ export class EmulatorFrame {
     this.cheats = cheats;
     this.requestId = 0;
     this.pending = new Map(); // requestId → { resolve, reject }
-    this.listeners = { started: [], error: [], fastforward: [] };
+    this.listeners = { started: [], error: [], fastforward: [], metrics: [] };
 
     this._onMessage = this._onMessage.bind(this);
     window.addEventListener('message', this._onMessage);
@@ -296,6 +326,9 @@ export class EmulatorFrame {
         break;
       case 'state-loaded':
         this._resolve(msg.requestId, true);
+        break;
+      case 'metrics':
+        this._emit('metrics', msg);
         break;
       case 'fastforward':
         this._emit('fastforward', msg.on);
