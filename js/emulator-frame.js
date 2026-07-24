@@ -35,8 +35,14 @@ function buildFrameHtml() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <style>
-  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  html, body { margin: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
   #game { width: 100%; height: 100%; }
+  /* EmulatorJS génère ses propres conteneurs et les dimensionne
+     à la volée : on les force à occuper toute la surface, sinon
+     le jeu reste calé en haut à gauche dans une petite boîte. */
+  #game > div,
+  .ejs_parent,
+  .ejs_game { width: 100% !important; height: 100% !important; }
 </style>
 </head>
 <body>
@@ -87,6 +93,26 @@ function buildFrameHtml() {
       send({ type: 'error', context: 'fastforward', message: String(e) });
     }
   }
+
+  /* ---------- Recalcul de la taille ----------
+     EmulatorJS mesure son conteneur au démarrage. Dans une
+     iframe blob, cette mesure tombe souvent avant que la mise
+     en page soit stabilisée → jeu minuscule en haut à gauche.
+     On force donc un recalcul après coup, puis à chaque
+     rotation de l'appareil. */
+  function forceResize() {
+    try {
+      var e = window.EJS_emulator;
+      if (e && typeof e.handleResize === 'function') e.handleResize();
+      else window.dispatchEvent(new Event('resize'));
+    } catch (err) { /* silencieux : purement cosmétique */ }
+  }
+
+  window.addEventListener('orientationchange', function () {
+    // iOS met à jour les dimensions après la fin de l'animation
+    setTimeout(forceResize, 250);
+    setTimeout(forceResize, 700);
+  });
 
   /* ---------- Menu natif EmulatorJS ----------
      L'API varie selon les versions du CDN : on tente les
@@ -160,6 +186,9 @@ function buildFrameHtml() {
         send({ type: 'started' });
         // Les codes actifs sont appliqués dès le lancement
         applyCheats(pendingCheats);
+        // Deux passes : la mise en page se stabilise en différé
+        setTimeout(forceResize, 100);
+        setTimeout(forceResize, 600);
       };
 
       // Étape 5 : injection de loader.js depuis le contexte iframe
