@@ -74,6 +74,49 @@ function buildFrameHtml() {
     }
   }
 
+  /* ---------- Avance rapide ---------- */
+  function setFastForward(on, ratio) {
+    if (!started || !window.EJS_emulator) return;
+    try {
+      var gm = window.EJS_emulator.gameManager;
+      // Le ratio doit être défini avant l'activation
+      if (gm.setFastForwardRatio) gm.setFastForwardRatio(ratio || 2);
+      gm.toggleFastForward(on ? 1 : 0);
+      send({ type: 'fastforward', on: !!on });
+    } catch (e) {
+      send({ type: 'error', context: 'fastforward', message: String(e) });
+    }
+  }
+
+  /* ---------- Menu natif EmulatorJS ----------
+     L'API varie selon les versions du CDN : on tente les
+     chemins connus dans l'ordre, et on renvoie au parent
+     celui qui a fonctionné (ou l'échec) pour diagnostic. */
+  function openNativeMenu() {
+    var e = window.EJS_emulator;
+    if (!e) return send({ type: 'error', context: 'menu', message: 'Émulateur non initialisé' });
+    try {
+      if (e.menu && typeof e.menu.open === 'function') {
+        e.menu.open();
+        return send({ type: 'menu-opened', via: 'menu.open' });
+      }
+      if (typeof e.toggleMenu === 'function') {
+        e.toggleMenu();
+        return send({ type: 'menu-opened', via: 'toggleMenu' });
+      }
+      // Repli : forcer l'affichage de la barre de contrôle native
+      var bar = document.querySelector('.ejs_menu_bar');
+      if (bar) {
+        bar.classList.remove('ejs_menu_bar_hidden');
+        bar.style.display = 'flex';
+        return send({ type: 'menu-opened', via: 'menu_bar' });
+      }
+      send({ type: 'error', context: 'menu', message: 'Menu introuvable dans cette version' });
+    } catch (err) {
+      send({ type: 'error', context: 'menu', message: String(err) });
+    }
+  }
+
   /* ---------- Miniature JPEG de l'écran ---------- */
   function captureThumbnail() {
     try {
@@ -146,6 +189,12 @@ function buildFrameHtml() {
 
     } else if (msg.type === 'set-cheats') {
       applyCheats(msg.cheats);
+
+    } else if (msg.type === 'set-fastforward') {
+      setFastForward(msg.on, msg.ratio);
+
+    } else if (msg.type === 'open-menu') {
+      openNativeMenu();
     }
   });
 
@@ -172,7 +221,7 @@ export class EmulatorFrame {
     this.cheats = cheats;
     this.requestId = 0;
     this.pending = new Map(); // requestId → { resolve, reject }
-    this.listeners = { started: [], error: [] };
+    this.listeners = { started: [], error: [], fastforward: [] };
 
     this._onMessage = this._onMessage.bind(this);
     window.addEventListener('message', this._onMessage);
@@ -219,6 +268,9 @@ export class EmulatorFrame {
       case 'state-loaded':
         this._resolve(msg.requestId, true);
         break;
+      case 'fastforward':
+        this._emit('fastforward', msg.on);
+        break;
       case 'error':
         if (msg.requestId != null) this._reject(msg.requestId, new Error(msg.message));
         else this._emit('error', msg);
@@ -264,6 +316,16 @@ export class EmulatorFrame {
   setCheats(cheats) {
     this.cheats = cheats;
     this._post({ type: 'set-cheats', cheats });
+  }
+
+  /** Active/désactive l'avance rapide (ratio par défaut : ×2). */
+  setFastForward(on, ratio = 2) {
+    this._post({ type: 'set-fastforward', on, ratio });
+  }
+
+  /** Ouvre le menu natif d'EmulatorJS (paramètres, contrôles, volume). */
+  openMenu() {
+    this._post({ type: 'open-menu' });
   }
 
   /** Détruit l'iframe et libère les ressources. */

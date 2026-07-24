@@ -14,6 +14,21 @@ const $ = sel => document.querySelector(sel);
 let currentRom = null;   // ROM en cours de jeu { id, name, data }
 let emulator = null;     // Instance EmulatorFrame
 let slotsMode = 'save';  // 'save' | 'load'
+let fastForward = false; // état de l'avance rapide
+
+/* ---------- Avance rapide ---------- */
+function setFastForwardUI(on) {
+  fastForward = on;
+  $('#btn-fastforward').setAttribute('aria-pressed', String(on));
+}
+
+function toggleFastForward() {
+  if (!emulator) return;
+  const next = !fastForward;
+  setFastForwardUI(next);          // retour visuel immédiat
+  emulator.setFastForward(next, 2); // ×2 ; l'iframe confirmera
+  toast(next ? 'Avance rapide ×2' : 'Vitesse normale');
+}
 
 /* ---------- Toast ---------- */
 let toastTimer;
@@ -75,6 +90,12 @@ async function launchGame(romId) {
   emulator = new EmulatorFrame($('#emu-host'), rom, listCheats(rom.id));
   emulator.on('started', () => toast('Partie lancée'));
   emulator.on('error', e => toast(`Erreur : ${e.message}`));
+  // L'iframe confirme le changement : le bouton reflète l'état réel
+  emulator.on('fastforward', on => {
+    fastForward = on;
+    $('#btn-fastforward').setAttribute('aria-pressed', String(on));
+  });
+  setFastForwardUI(false);
 }
 
 function quitGame() {
@@ -195,7 +216,9 @@ function onAddCheat() {
 }
 
 /* ---------- Import de ROMs ---------- */
-const ROM_EXT = /\.(gba|agb|bin|zip)$/i;
+// Le suffixe optionnel « 2 », « 3 »… est celui qu'iOS ajoute aux
+// doublons : le nom se termine alors par « .gba 2 », pas par « .gba ».
+const ROM_EXT = /\.(gba|agb|bin|zip)(\s+\d+)?$/i;
 
 async function onImport(ev) {
   const files = [...ev.target.files];
@@ -232,6 +255,10 @@ if ('serviceWorker' in navigator) {
 /* ---------- Câblage des événements ---------- */
 $('#rom-input').addEventListener('change', onImport);
 $('#btn-quit').addEventListener('click', quitGame);
+$('#btn-fastforward').addEventListener('click', toggleFastForward);
+$('#btn-menu').addEventListener('click', () => {
+  if (emulator) emulator.openMenu();
+});
 $('#btn-states').addEventListener('click', () => { renderSlots(); openSheet('#sheet-states'); });
 $('#btn-cheats').addEventListener('click', () => { renderCheats(); openSheet('#sheet-cheats'); });
 $('#mode-save').addEventListener('click', () => setSlotsMode('save'));

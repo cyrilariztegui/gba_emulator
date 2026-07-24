@@ -46,7 +46,8 @@ export async function importRom(file) {
   const id = await hashBuffer(buffer);
   const rom = {
     id,
-    name: file.name.replace(/\.(gba|agb|bin)$/i, ''),
+    // On retire l'extension et l'éventuel suffixe de doublon iOS
+    name: file.name.replace(/\.(gba|agb|bin|zip)(\s+\d+)?$/i, ''),
     size: buffer.byteLength,
     addedAt: Date.now(),
     data: buffer, // ArrayBuffer stocké tel quel (structured clone)

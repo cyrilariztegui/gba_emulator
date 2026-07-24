@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test import — RETROCORE</title>
+<style>
+  body { background:#111125; color:#eceafd; font:16px/1.5 system-ui; padding:20px; }
+  input, button { font-size:16px; padding:12px; margin:6px 0; width:100%; }
+  pre { background:#0c0c1c; padding:12px; border-radius:8px; white-space:pre-wrap; word-break:break-all; }
+</style>
+</head>
+<body>
+<h2>Test A — input visible, sans accept</h2>
+<input id="a" type="file" multiple>
+
+<h2>Test B — input caché + bouton</h2>
+<input id="b" type="file" multiple style="display:none">
+<button onclick="document.getElementById('b').click()">Choisir un fichier</button>
+
+<h2>Résultat</h2>
+<pre id="log">En attente…</pre>
+
+<script>
+  var log = document.getElementById('log');
+  function show(which, ev) {
+    var files = [].slice.call(ev.target.files);
+    log.textContent = 'Test ' + which + ' — ' + files.length + ' fichier(s)\n\n' +
+      files.map(function (f) {
+        return 'nom  : ' + f.name + '\ntype : "' + f.type + '"\ntaille : ' + f.size;
+      }).join('\n\n');
+  }
+  document.getElementById('a').addEventListener('change', function (e) { show('A', e); });
+  document.getElementById('b').addEventListener('change', function (e) { show('B', e); });
+</script>
+</body>
+</html>

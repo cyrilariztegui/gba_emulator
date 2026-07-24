@@ -177,10 +177,18 @@ h2 {
 #emu-host {
   flex: 1;
   position: relative;
+  /* Décalage du haut de l'iframe : 0 par défaut (paysage) */
+  --player-top: 0px;
+}
+/* En portrait, l'encoche / Dynamic Island et la barre d'outils
+   recouvrent le haut du jeu → bandeau noir de dégagement. */
+@media (orientation: portrait) {
+  #emu-host { --player-top: calc(var(--safe-top) + 56px); }
 }
 #emu-host iframe {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+  position: absolute;
+  top: var(--player-top);
+  right: 0; bottom: 0; left: 0;
   border: none;
   background: #000;
 }
@@ -201,6 +209,23 @@ h2 {
   opacity: 0.85;
 }
 #player-topbar .spacer { flex: 1; }
+
+/* Bouton Menu : le plus visible de la barre (accent + halo) */
+#player-topbar .btn.accent {
+  color: #fff;
+  background: linear-gradient(135deg, #6a10c4, var(--accent));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 18px var(--accent-glow);
+  opacity: 1;
+  font-weight: 700;
+}
+
+/* Avance rapide active : creusé + halo violet */
+#btn-fastforward[aria-pressed="true"] {
+  color: var(--accent);
+  box-shadow: var(--neu-in), 0 0 16px var(--accent-glow);
+  opacity: 1;
+}
 
 /* ---------- Bottom sheets (états / triche) ---------- */
 .sheet {
