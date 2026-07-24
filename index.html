@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>RETROCORE</title>
+  <meta name="theme-color" content="#111125">
+
+  <!-- PWA / mode standalone iOS -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RETROCORE">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-180.png">
+
+  <!-- Typographies -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Hanken+Grotesk:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+
+  <!-- ================= Écran bibliothèque ================= -->
+  <section id="screen-library" class="screen active">
+    <header id="library-header">
+      <h1>RETRO<span class="core">CORE</span></h1>
+    </header>
+
+    <div id="rom-list"></div>
+
+    <div id="empty-state">
+      <h2>Aucun jeu</h2>
+      <p>Importe une ROM .gba pour commencer.</p>
+    </div>
+
+    <div id="import-bar" class="glass">
+      <label class="btn primary" for="rom-input">＋ Importer une ROM</label>
+      <input id="rom-input" type="file" accept=".gba,.agb,.bin" multiple hidden>
+    </div>
+  </section>
+
+  <!-- ================= Écran de jeu ================= -->
+  <section id="screen-player" class="screen">
+    <div id="player-topbar">
+      <button id="btn-quit" class="btn icon glass" aria-label="Quitter">←</button>
+      <div class="spacer"></div>
+      <button id="btn-states" class="btn glass">Sauvegardes</button>
+      <button id="btn-cheats" class="btn glass">Triche</button>
+    </div>
+    <div id="emu-host"></div>
+  </section>
+
+  <!-- ================= Sheet : save states ================= -->
+  <div id="sheet-states" class="sheet glass">
+    <div class="sheet-header">
+      <h2>Sauvegardes rapides</h2>
+      <button class="close" aria-label="Fermer">✕</button>
+    </div>
+    <div id="slots-mode">
+      <button id="mode-save" class="btn selected">Sauvegarder</button>
+      <button id="mode-load" class="btn">Charger</button>
+    </div>
+    <div id="slots-grid"></div>
+  </div>
+
+  <!-- ================= Sheet : codes de triche ================= -->
+  <div id="sheet-cheats" class="sheet glass">
+    <div class="sheet-header">
+      <h2>Codes GameShark</h2>
+      <button class="close" aria-label="Fermer">✕</button>
+    </div>
+    <div id="cheat-form">
+      <input id="cheat-desc" type="text" placeholder="Description (ex. Vies infinies)" autocomplete="off">
+      <input id="cheat-code" type="text" placeholder="XXXXXXXX YYYYYYYY" autocomplete="off" spellcheck="false">
+      <button id="btn-add-cheat" class="btn primary">Ajouter le code</button>
+    </div>
+    <div id="cheat-list"></div>
+  </div>
+
+  <div id="scrim"></div>
+  <div id="toast" class="glass"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

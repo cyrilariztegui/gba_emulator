@@ -1,0 +1,372 @@
+/* ============================================================
+   RETROCORE — Design system
+   Neumorphisme tactile + glassmorphism sur fond navy
+   ============================================================ */
+
+:root {
+  --accent: #8117ed;
+  --accent-soft: rgba(129, 23, 237, 0.35);
+  --accent-glow: rgba(129, 23, 237, 0.18);
+  --bg: #111125;
+  --bg-raised: #171732;
+  --bg-sunken: #0c0c1c;
+  --glass: rgba(23, 23, 50, 0.66);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text: #eceafd;
+  --text-dim: #8d8ab0;
+  --danger: #ed3a5f;
+  --ok: #2fd48a;
+
+  /* Ombres neumorphiques (lumière haut-gauche) */
+  --neu-out: -6px -6px 14px rgba(46, 46, 92, 0.45),
+             6px 6px 14px rgba(0, 0, 0, 0.55);
+  --neu-in: inset -4px -4px 10px rgba(46, 46, 92, 0.4),
+            inset 4px 4px 10px rgba(0, 0, 0, 0.55);
+
+  --radius: 20px;
+  --radius-sm: 12px;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Hanken Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ---------- Écrans ---------- */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 16px);
+}
+.screen.active { display: flex; }
+
+/* ---------- Typo ---------- */
+h1 {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  letter-spacing: 0.06em;
+}
+h1 .core { color: var(--accent); }
+h2 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+.mono { font-family: var(--font-mono); }
+.dim { color: var(--text-dim); }
+
+/* ---------- Boutons neumorphiques ---------- */
+.btn {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg-raised);
+  border: none;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--neu-out);
+  padding: 14px 18px;
+  min-height: 52px; /* zone tactile confortable */
+  cursor: pointer;
+  transition: box-shadow 0.12s, transform 0.12s;
+}
+.btn:active { box-shadow: var(--neu-in); transform: scale(0.98); }
+.btn.primary {
+  background: linear-gradient(135deg, #6a10c4, var(--accent));
+  box-shadow: var(--neu-out), 0 0 22px var(--accent-glow);
+}
+.btn.danger { color: var(--danger); }
+.btn.icon { min-width: 52px; padding: 0; font-size: 1.25rem; }
+.btn:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ---------- Panneaux verre ---------- */
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+}
+
+/* ---------- Bibliothèque ---------- */
+#library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+#rom-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 90px;
+}
+.rom-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  box-shadow: var(--neu-out);
+  cursor: pointer;
+}
+.rom-card:active { box-shadow: var(--neu-in); }
+.rom-card .cart {
+  width: 46px; height: 46px;
+  border-radius: 10px;
+  background: var(--bg-sunken);
+  box-shadow: var(--neu-in);
+  display: grid; place-items: center;
+  color: var(--accent);
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.rom-card .meta { flex: 1; min-width: 0; }
+.rom-card .name {
+  font-family: var(--font-display);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rom-card .size { font-size: 0.78rem; }
+.rom-card .del {
+  background: none; border: none;
+  color: var(--text-dim); font-size: 1.15rem;
+  padding: 10px; cursor: pointer;
+}
+
+#empty-state {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--text-dim);
+}
+#empty-state.visible { display: flex; }
+
+#import-bar {
+  position: fixed;
+  left: 16px; right: 16px;
+  bottom: calc(var(--safe-bottom) + 16px);
+  padding: 12px;
+  display: flex;
+}
+#import-bar .btn { flex: 1; }
+
+/* ---------- Écran de jeu ---------- */
+#screen-player { padding: 0; background: #000; }
+#emu-host {
+  flex: 1;
+  position: relative;
+}
+#emu-host iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: none;
+  background: #000;
+}
+#player-topbar {
+  position: absolute;
+  top: calc(var(--safe-top) + 8px);
+  left: 8px; right: 8px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  pointer-events: none;
+}
+#player-topbar .btn {
+  pointer-events: auto;
+  min-height: 42px; min-width: 42px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+#player-topbar .spacer { flex: 1; }
+
+/* ---------- Bottom sheets (états / triche) ---------- */
+.sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  max-height: 78%;
+  transform: translateY(105%);
+  transition: transform 0.25s ease;
+  z-index: 20;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 18px 18px calc(var(--safe-bottom) + 18px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+.sheet.open { transform: translateY(0); }
+.sheet-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sheet-header .close {
+  background: none; border: none; color: var(--text-dim);
+  font-size: 1.4rem; padding: 8px; cursor: pointer;
+}
+
+/* Grille des 9 emplacements */
+#slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.slot {
+  aspect-ratio: 3 / 2.6;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  box-shadow: var(--neu-in);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid transparent;
+}
+.slot.filled { border-color: var(--accent-soft); }
+.slot img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+.slot .num {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  position: relative; z-index: 1;
+  background: rgba(12, 12, 28, 0.7);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+.slot .date {
+  font-size: 0.62rem;
+  color: var(--text);
+  position: relative; z-index: 1;
+  background: rgba(12, 12, 28, 0.7);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+#slots-mode {
+  display: flex; gap: 10px;
+}
+#slots-mode .btn {
+  flex: 1; min-height: 44px; font-size: 0.88rem;
+}
+#slots-mode .btn.selected {
+  box-shadow: var(--neu-in), 0 0 16px var(--accent-glow);
+  color: var(--accent);
+}
+
+/* ---------- Codes de triche ---------- */
+#cheat-form { display: flex; flex-direction: column; gap: 10px; }
+#cheat-form input {
+  background: var(--bg-sunken);
+  box-shadow: var(--neu-in);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 13px 14px;
+  font-size: 0.95rem;
+  -webkit-user-select: text; user-select: text;
+}
+#cheat-form input#cheat-code { font-family: var(--font-mono); text-transform: uppercase; }
+#cheat-form input:focus { outline: 1px solid var(--accent-soft); }
+#cheat-list { display: flex; flex-direction: column; gap: 10px; }
+.cheat-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  box-shadow: var(--neu-out);
+}
+.cheat-row .info { flex: 1; min-width: 0; }
+.cheat-row .desc {
+  font-size: 0.88rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cheat-row .code { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); }
+.cheat-row .del {
+  background: none; border: none; color: var(--text-dim);
+  font-size: 1.1rem; padding: 8px; cursor: pointer;
+}
+
+/* Interrupteur néomorphique */
+.toggle {
+  width: 48px; height: 28px;
+  border-radius: 14px;
+  background: var(--bg-sunken);
+  box-shadow: var(--neu-in);
+  border: none;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: transform 0.15s, background 0.15s;
+}
+.toggle.on::after {
+  transform: translateX(20px);
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* ---------- Toast ---------- */
+#toast {
+  position: fixed;
+  bottom: calc(var(--safe-bottom) + 90px);
+  left: 50%;
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  z-index: 50;
+  pointer-events: none;
+  white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Voile derrière les sheets */
+#scrim {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+  z-index: 15;
+}
+#scrim.visible { opacity: 1; pointer-events: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
