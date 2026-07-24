@@ -46,6 +46,71 @@ html, body {
   user-select: none;
 }
 
+/* ---------- Écran de lancement ---------- */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  opacity: 1;
+  transition: opacity 0.32s ease;
+}
+#splash.done { opacity: 0; }
+#splash svg {
+  width: 84px;
+  height: 84px;
+  filter: drop-shadow(0 0 26px var(--accent-glow));
+  animation: splash-in 0.45s ease-out both;
+}
+#splash h1 {
+  animation: splash-in 0.45s 0.1s ease-out both;
+}
+@keyframes splash-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #splash svg, #splash h1 { animation: none; }
+}
+
+/* ---------- Écran de lancement ---------- */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  transition: opacity 0.35s ease;
+}
+#splash.done { opacity: 0; pointer-events: none; }
+#splash svg {
+  width: 88px; height: 88px;
+  filter: drop-shadow(0 0 26px var(--accent-glow));
+  animation: splash-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+#splash p {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em; /* compense l'interlettrage sur le dernier glyphe */
+  animation: splash-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) 0.1s both;
+}
+#splash .core { color: var(--accent); }
+
+@keyframes splash-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
 /* ---------- Écrans ---------- */
 .screen {
   position: fixed;

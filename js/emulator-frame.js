@@ -40,6 +40,30 @@ function buildFrameHtml() {
      donc aucune ambiguïté de résolution de hauteur dans une iframe
      à origine opaque. */
   #game { position: absolute; top: 0; left: 0; }
+
+  /* Panneaux natifs d'EmulatorJS (paramètres, menu contextuel) :
+     ils sont dimensionnés pour un écran large et débordent hors
+     du cadre par la gauche sur iPhone. On les recale à gauche,
+     on les borne à la largeur de l'iframe et on les rend
+     défilables verticalement. */
+  [class*="ejs_settings_parent"],
+  [class*="ejs_settings_menu"],
+  [class*="ejs_context_menu"] {
+    left: 0 !important;
+    right: auto !important;
+    max-width: 100vw !important;
+    max-height: 55vh !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Les lignes internes portent parfois une largeur fixe */
+  [class*="ejs_settings"] > *,
+  [class*="ejs_context_menu"] > * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
 </style>
 </head>
 <body>

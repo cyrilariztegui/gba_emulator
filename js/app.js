@@ -11,6 +11,17 @@ import { listCheats, addCheat, toggleCheat, removeCheat, normalizeCode } from '.
 
 const $ = sel => document.querySelector(sel);
 
+/* ---------- Écran de lancement ----------
+   Affiché ~1 s, puis fondu et retrait du DOM. */
+setTimeout(() => {
+  const splash = $('#splash');
+  if (!splash) return;
+  splash.classList.add('done');
+  splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+  // Repli si la transition ne se déclenche pas (animations réduites)
+  setTimeout(() => splash.remove(), 600);
+}, 1000);
+
 let currentRom = null;   // ROM en cours de jeu { id, name, data }
 let emulator = null;     // Instance EmulatorFrame
 let slotsMode = 'save';  // 'save' | 'load'
@@ -273,5 +284,18 @@ $('#mode-load').addEventListener('click', () => setSlotsMode('load'));
 $('#btn-add-cheat').addEventListener('click', onAddCheat);
 $('#scrim').addEventListener('click', closeSheets);
 document.querySelectorAll('.sheet .close').forEach(b => b.addEventListener('click', closeSheets));
+
+/* ---------- Écran de lancement ---------- */
+function hideSplash() {
+  const splash = $('#splash');
+  if (!splash) return;
+  splash.classList.add('done');
+  splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+  setTimeout(() => splash.remove(), 800); // filet si la transition ne se déclenche pas
+}
+// Le délai court depuis l'ouverture de la page, pas depuis l'exécution
+// de ce module : la durée perçue reste d'environ 1 s quel que soit le
+// temps de chargement des scripts.
+setTimeout(hideSplash, Math.max(0, 1000 - performance.now()));
 
 renderLibrary();
