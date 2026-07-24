@@ -195,17 +195,31 @@ function onAddCheat() {
 }
 
 /* ---------- Import de ROMs ---------- */
+const ROM_EXT = /\.(gba|agb|bin|zip)$/i;
+
 async function onImport(ev) {
   const files = [...ev.target.files];
   ev.target.value = '';
-  for (const file of files) {
+
+  // Filtrage assuré ici : l'attribut `accept` est inutilisable sur
+  // iOS pour les extensions sans UTI système (il grise les .gba).
+  const valid = files.filter(f => ROM_EXT.test(f.name));
+  if (files.length && !valid.length) {
+    return toast('Formats acceptés : .gba, .agb, .bin, .zip');
+  }
+
+  let failed = 0;
+  for (const file of valid) {
     try {
       await importRom(file);
     } catch (e) {
+      failed++;
       toast(`Import impossible : ${file.name}`);
     }
   }
-  if (files.length) toast(files.length > 1 ? `${files.length} ROMs importées` : 'ROM importée');
+
+  const ok = valid.length - failed;
+  if (ok) toast(ok > 1 ? `${ok} ROMs importées` : 'ROM importée');
   renderLibrary();
 }
 

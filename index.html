@@ -38,7 +38,9 @@
 
     <div id="import-bar" class="glass">
       <label class="btn primary" for="rom-input">＋ Importer une ROM</label>
-      <input id="rom-input" type="file" accept=".gba,.agb,.bin" multiple hidden>
+      <!-- Pas d'attribut `accept` : iOS grise les extensions sans UTI
+           système (.gba). Le filtrage se fait dans onImport (app.js). -->
+      <input id="rom-input" type="file" multiple hidden>
     </div>
   </section>
 
